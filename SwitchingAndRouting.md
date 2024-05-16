@@ -165,7 +165,24 @@
 ### show vrf interfaces
     show ip vrf interfaces
     
-
+### CREATES AN ASSING A VLAN TO AN INTERFACE SWITCH
+    config ter
+    hostname switch1
+    vlan 10
+    name admin
+    exit
+    vlan 20
+    name accounting
+    exit
+    vlan 30
+    name engineering
+    exit
+    interface range e1/0-3 
+    switchport mode access
+    switchport access vlan 10
     
-
+    interface e0/1
+    switchport mode trunk
+    exit
+    
 
