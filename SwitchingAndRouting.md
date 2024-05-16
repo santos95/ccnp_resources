@@ -161,6 +161,9 @@
 
     interface Et0/0.999
     encapsulation dot1Q 999 native
+
+### show vrf interfaces
+    show ip vrf interfaces
     
 
     
