@@ -5,7 +5,9 @@ Port type that connects one device with another device in the network (PC or swi
 
 P2P Edge - Especify that portfast is enabled in that port
 
-
+## COMMANDS FOR CHECKING
+    shoW ip ospf neighbor
+    show ip ospf interface S3/0 | include Timer
 
 ## CHECK ROOT ID AND ROUTE PORTS 
     show spanning-tree root
@@ -34,6 +36,30 @@ P2P Edge - Especify that portfast is enabled in that port
 
 ### GET DHCP IP
     ip dhcp
+
+### DEFINE A OSPF PROCESS
+    router ospf 4
+    router-id 1.1.1.4
+    network 10.0.0.0 0.255.255.255 area 0
+    network 192.168.1.0 0.0.0.255 area 0
+    exit
+    ipv6 router ospf 6
+    router-id 1.1.1.6
+    interface E0/0
+    ipv6 ospf 6 area 0
+    exit
+    interface S2/0
+    ipv6 ospf 6 area 0
+    exit
+    interface S3/0
+    ipv6 ospf 6 area 0
+    exit
+    interface loopback 0
+    ipv6 ospf 6 area 0
+    ipv6 ospf network point-to-point
+    exit
+    ip route 172.16.3.0 255.255.255.0 E0/0 10.1.2.2
+    end
 
 ### COMMANDS EXAMPLES 1
 ### BASIC SETTINGS ROUTER 1
@@ -267,10 +293,12 @@ P2P Edge - Especify that portfast is enabled in that port
     exit
 
 
+## P2
 ### SWITCH ENABLE TRUNK LINKS  
-### D1  P2
+### D1  
 ### TRUNK LINK 1
     interface range e3/0-3
+    switchport trunk encapsulation dot1q
     switchport mode trunk
 ### SET TO NATIVE VLAN IN THE TRUNK LINK 2  
     switchport trunk native vlan 999
@@ -280,6 +308,7 @@ P2P Edge - Especify that portfast is enabled in that port
     exit
 ### TRUNK LINK 1 SET TO NATIVE VLAN IN THE TRUNK LINK 2 ETHERNETCHANNELS D1
     interface range e2/0-1
+    switchport trunk encapsulation dot1q
     switchport mode trunk
     switchport trunk native vlan 999
     channel-group 1 mode active
@@ -302,22 +331,24 @@ P2P Edge - Especify that portfast is enabled in that port
 
 ### D2
     interface range e3/0-3
+    switchport trunk encapsulation dot1q
     switchport mode trunk
     switchport trunk native vlan 999
     channel-group 12 mode active
     no shutdown
     exit
     interface range e2/2-3
+    switchport trunk encapsulation dot1q
     switchport mode trunk
     switchport trunk native vlan 999
     channel-group 2 mode active
     no shutdown
     exit
-    !
+    
     spanning-tree mode rapid-pvst
     spanning-tree vlan 101 root primary
     spanning-tree vlan 100,102 root secondary
-    !
+    
     interface e0/0
     switchport mode access
     switchport access vlan 102
@@ -325,16 +356,18 @@ P2P Edge - Especify that portfast is enabled in that port
     no shutdown
     exit
     end
-
+    
 ### A1
     spanning-tree mode rapid-pvst
     interface range e2/0-1
+    switchport trunk encapsulation dot1q
     switchport mode trunk
     switchport trunk native vlan 999
     channel-group 1 mode active
     no shutdown
     exit
     interface range e3/2-3
+    switchport trunk encapsulation dot1q
     switchport mode trunk
     switchport trunk native vlan 999
     channel-group 2 mode active
