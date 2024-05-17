@@ -324,6 +324,51 @@ show ip route static | begin Gateway
     prioridad default - 1 
     ip ospf priority 100 - cambiar la prioridad
 
+### COMMAND TO CHECK CONFIGURATION SPANNING TREE AND INTERFACES P2
+    show interface trunk
+    show run | include spanning-tree
+    show run interface e0/0
+    show run | include spanning-tree
+    show run interface e0/0
+    show run interface e0/0
+    show run interface e0/1
+### CHECK OSPF 
+    show run | section ^router ospf
+
+### CHECK BGP
+    show run | section router bgp
+    show run | include route
+    show run | section bgp
+
+### CHECK OSPF AND BGP 
+    show ip route | include O|B
+
+### CHECK OSPFV3 IPV6
+    show ipv6 route
+
+### CHECK ospf ipv4 and to check ospf for ipv6
+    show ip route ospf | begin Gateway
+    show ipv6 route ospf
+
+### check ip sla on switches d1 d2
+    show run | section ip sla
+    show standby brief
+
+### CHECK secret - security
+    show run | include secret
+### CHECK aaa
+    show run aaa | exclude !
+
+### CHECK UTC TIME AND NTP IN ROUTERS AND SWITCHES
+    show run | include ntp
+    show ntp status | include stratum
+    show run | include logging
+
+    show ip access-list SNMP-NMS
+    show run | include snmp
+
+    
+### EXAMPLE TEST 1 CASE 1
 ### COMMANDS EXAMPLES 1
 ### BASIC SETTINGS ROUTER 1
     hostname h1
@@ -560,6 +605,7 @@ show ip route static | begin Gateway
 ### D1  P2
 ### TRUNK LINK 1
     interface range e3/0-3
+    switchport trunk encapsulation dot1q
     switchport mode trunk
 ### SET TO NATIVE VLAN IN THE TRUNK LINK 2  
     switchport trunk native vlan 999
@@ -604,11 +650,10 @@ show ip route static | begin Gateway
     channel-group 2 mode active
     no shutdown
     exit
-    !
     spanning-tree mode rapid-pvst
     spanning-tree vlan 101 root primary
     spanning-tree vlan 100,102 root secondary
-    !
+
     interface e0/0
     switchport mode access
     switchport access vlan 102
@@ -785,4 +830,189 @@ show ip route static | begin Gateway
     exit
     end
 
+
+### P4 sla
+### D1
+    ip sla 4
+    icmp-echo 10.0.10.1
+    frequency 5
+    exit
+    ip sla 6
+    icmp-echo 2001:db8:100:1010::1
+    frequency 5
+    exit
+    ip sla schedule 4 life forever start-time now
+    ip sla schedule 6 life-forever start-time now
+    track 4 ip sla 4
+    delay down 10 up 15
+    exit
+    track 6 ip sla 6
+    delay down 10 up 15
+    exit
+    interface vlan 100
+    standby version 2
+    standby 104 ip 10.0.100.254
+    standby 104 priority 150
+    standby 104 preempt
+    standby 104 track 4 decrement 60
+    standby 106 ipv6 autoconfig
+    standby 106 priority 150
+    standby 106 preempt
+    standby 106 track 6 decrement 60
+    exit
+    interface vlan 101
+    standby version 2
+    standby 114 ip 10.0.101.254
+    standby 114 preempt
+    standby 114 track 4 decrement 60
+    standby 116 ipv6 autoconfig
+    standby 116 preempt
+    standby 116 track 6 decrement 60
+    exit
+    interface vlan 102
+    standby version 2
+    standby 124 ip 10.0.102.254
+    standby 124 priority 150
+    standby 124 preempt
+    standby 124 track 4 decrement 60
+    standby 126 ipv6 autoconfig
+    standby 126 priority 150
+    standby 126 preempt
+    standby 126 track 6 decrement 60
+    exit
+    end
+
+
+### D2
+    ip sla 4
+    icmp-echo 10.0.11.1
+    frequency
+    exit
+    ip sla 6
+    icmp-echo 2001:db8:100:1011::1
+    frequency
+    exit
+    ip sla schedule 4 life forever start-time now
+    ip sla schedule 6 life forever start-time now
+    track 4 ip sla 4
+    delay down 10 up 15
+    exit
+    track 6 ip sla 6
+    delay down 10 up 15
+    exit
+    interface vlan 100
+    standby version 2
+    standby 104 ip 10.0.100.254
+    standby 104 preempt
+    standby 104 track 4 decrement 60
+    standby 106 ipv6 autoconfig
+    standby 106 preempt
+    standby 106 track 6 decrement 60
+    exit
+    interface vlan 101
+    standby version 2
+    standby 114 ip 10.0.101.254
+    standby 114 priority 150
+    standby 114 preempt
+    standby 114 track 4 decrement 60
+    standby 116 ipv6 autoconfig
+    standby 116 priority 150
+    standby 116 preempt
+    standby 116 track 6 decrement 60
+    exit
+    interface vlan 102
+    standby version 2
+    standby 124 ip 10.0.102.254
+    standby 124 preempt
+    standby 124 track 4 decrement 60
+    standby 126 ipv6 autoconfig
+    standby 126 preempt
+    standby 126 track 6 decrement 60
+    exit
+    end
+
+### P5
+### GLOBAL FOR ALL
+    enable algorithm-type SCRYPT secret cisco12345cisco
+    username sadmin privilege 15 algorithm-type SCRYPT secret cisco12345cisco
+
+### All EXCEPT R2
+
+    aaa new-model
+    radius server RADIUS
+    address ipv4 10.0.100.6 auth-port 1812 acct-port 1813
+    key $trongPass
+    exit
+    aaa authentication login default group radius local
+    end
+
+### P6
+### R2
+    ntp master 3
+    end
+
+### R1
+    ! enable and enter password
+    ntp server 2.2.2.2
+    logging trap warning
+    logging host 10.0.100.5
+    logging on
+    ip access-list standard SNMP-NMS
+    permit host 10.0.100.5
+    exit
+    snmp-server contact Cisco Student
+    snmp-server community ENCORSA ro SNMP-NMS
+    snmp-server host 10.0.100.5 version 2c ENCORSA
+    snmp-server ifindex persist
+    snmp-server enable traps bgp
+    snmp-server enable traps config
+    snmp-server enable traps ospf
+    end
+
+### D1
+    ntp server 10.0.10.1
+    logging trap warning
+    logging host 10.0.100.5
+    logging on
+    ip access-list standard SNMP-NMS
+    permit host 10.0.100.5
+    exit
+    snmp-server contact Cisco Student
+    snmp-server community ENCORSA ro SNMP-NMS
+    snmp-server host 10.0.100.5 version 2c ENCORSA
+    snmp-server ifindex persist
+    snmp-server enable traps config
+    snmp-server enable traps ospf
+    end
+
+### D2
+    ntp server 10.0.10.1
+    logging trap warning
+    logging host 10.0.100.5
+    logging on
+    ip access-list standard SNMP-NMS
+    permit host 10.0.100.5
+    exit
+    snmp-server contact Cisco Student
+    snmp-server community ENCORSA ro SNMP-NMS
+    snmp-server host 10.0.100.5 version 2c ENCORSA
+    snmp-server enable traps config
+    snmp-server enable traps ospf
+    end
+
+### A1
+    ntp server 10.0.10.1
+    logging trap warning
+    logging host 10.0.100.5
+    logging on
+    ip access-list standard SNMP-NMS
+    permit host 10.0.100.5
+    exit
+    snmp-server contact Cisco Student
+    snmp-server community ENCORSA ro SNMP-NMS
+    snmp-server host 10.0.100.5 version 2c ENCORSA
+    snmp-server ifindex persist
+    snmp-server enable traps config
+    snmp-server enable traps ospf
+    end
 
