@@ -125,3 +125,13 @@
     show bgp ipv6 neighbors
     show bgp ipv4 neighbors
     show bgp all neighbors
+### show bgp afi safi - display the content of the bgp database
+    The origin is a well-known mandatory BGP path attribute used in the BGP best-path algorithm. A value of i represents an IGP, e indicates EGP, and ? indicates a route that was redistributed into BGP.
+
+            Network          Next Hop            Metric LocPrf Weight Path
+        s>   192.168.1.0/27   0.0.0.0                  0         32768 i
+        *>   192.168.1.0      0.0.0.0                            32768 i
+        s>   192.168.1.64/26  0.0.0.0                  0         32768 i`
+
+### ebgp - bgp session between routers in different as - ad - 20
+### ibgp - bgp session between routers in the same as - ad - 200
