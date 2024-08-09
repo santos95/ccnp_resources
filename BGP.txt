@@ -1,0 +1,111 @@
+### CONCIGURE BGP IN R1 R2 Y R3
+#### R1
+router bgp 10
+ no bgp default ipv4-unicast
+ bgp router-id 4.6.10.1
+ neighbor 209.165.200.2 remote-as 172
+ neighbor 209.165.202.2 remote-as 192
+ neighbor 209.165.203.2 remote-as 192
+ neighbor 2001:db8:200::2 remote-as 172
+ neighbor 2001:db8:202::2 remote-as 192
+ neighbor 2001:db8:203::2 remote-as 192
+address-family ipv4 unicast
+neighbor 209.165.200.2 activate
+neighbor 209.165.202.2 activate
+neighbor 209.165.203.2 activate
+network 10.165.248.0 mask 255.255.255.0
+network 10.165.249.0 mask 255.255.255.0
+network 10.165.250.0 mask 255.255.255.0
+network 10.165.251.0 mask 255.255.255.0
+network 10.0.0.0 mask 255.255.255.0
+exit
+address-family ipv6 unicast
+  neighbor 2001:db8:200::2 activate
+  neighbor 2001:db8:202::2 activate
+  neighbor 2001:db8:203::2 activate
+  network 2001:db8:248::/64
+  network 2001:db8:249::/64
+  network 2001:db8:24a::/64
+  network 2001:db8:24b::/64
+  network 2001:db8:10::/64
+  exit
+ exit
+
+###### redistribuite bgp into eigrp
+router eigrp ENARSI-SA
+address-family ipv4 unicast autonomous-system 1
+topology base
+redistribute bgp 10 metric 1000000 10 255 1 1500
+exit
+exit-address-family
+address-family ipv6 unicast autonomous-system 1
+topology base
+redistribute bgp 10 metric 1000000 10 255 1 1500
+exit
+exit
+exit
+#### END R1
+
+#### R2
+ip route 0.0.0.0 0.0.0.0 null0
+ipv6 route ::/0 null0
+router bgp 172
+no bgp default ipv4-unicast
+bgp router-id 4.6.172.2
+neighbor 209.165.200.1 remote-as 10
+neighbor 209.165.201.1 remote-as 192
+neighbor 2001:db8:200::1 remote-as 10
+neighbor 2001:db8:201::1 remote-as 192
+address-family ipv4 unicast
+neighbor 209.165.200.1 activate
+neighbor 209.165.201.1 activate
+network 172.16.0.0 mask 255.255.255.0
+network 209.165.224.0
+network 0.0.0.0 mask 0.0.0.0
+exit
+address-family ipv6 unicast
+  neighbor 2001:db8:200::1 activate
+  neighbor 2001:db8:201::1 activate
+  network 2001:db8:172::/64
+  network 2001:db8:224::/64
+  network ::/0
+  exit
+exit
+
+#### END R2
+
+#### R3
+router bgp 192
+no bgp default ipv4-unicast
+bgp router-id 4.6.192.3
+neighbor 209.165.201.2 remote-as 172
+neighbor 209.165.202.1 remote-as 10
+neighbor 209.165.203.1 remote-as 10
+neighbor 2001:db8:201::2 remote-as 172
+neighbor 2001:db8:202::1 remote-as 10
+neighbor 2001:db8:203::1 remote-as 10
+address-family ipv4 unicast
+neighbor 209.165.201.2 activate
+neighbor 209.165.202.1 activate
+neighbor 209.165.203.1 activate
+network 192.168.240.0
+network 192.168.241.0
+network 192.168.242.0
+network 192.168.243.0
+network 192.168.0.0
+exit
+ address-family ipv6 unicast
+  neighbor 2001:db8:201::2 activate
+  neighbor 2001:db8:202::1 activate
+  neighbor 2001:db8:203::1 activate
+  network 2001:db8:240::/64
+  network 2001:db8:241::/64
+  network 2001:db8:242::/64
+  network 2001:db8:243::/64
+  network 2001:db8:192::/64
+  exit
+ exit
+
+
+#### END R3
+### END BGP CONFIGURATION

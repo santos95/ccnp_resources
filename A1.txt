@@ -1,0 +1,58 @@
+hostname A1
+no ip domain lookup
+banner motd # THIS IS A1, ENARSI EXAM - SANTOS ORTIZ #
+enable secret santos12345
+username admin privilege 15 secret santos12344
+line con 0
+logging synchronous
+exec-timeout 0 0
+exit
+line vty 0 4
+login local
+transport input telnet
+exec-timeout 5 0
+exit
+
+clock timezone UTC -6
+
+vlan 251
+name  Users
+exit
+
+vlan 250
+name Servers
+exit
+
+interface range e0/0-3,e1/0-3,e2/0-3,e3/0-3
+switchport mode access
+shut
+exit
+
+interface e3/1
+switchport mode access
+spanning-tree portfast
+switchport access vlan 251
+no shut
+exit
+
+interface e3/2
+switchport mode access
+spanning-tree portfast
+switchport access vlan 250
+exit
+
+interface vlan 250
+ip address 10.165.250.2 255.255.255.0
+ipv6 address fe80::a1:1 link-local
+ipv6 address 2001:db8:24a::2/64
+no shut
+exit
+
+ip default-gateway 10.165.250.1
+
+interface range e2/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 1 mode active
+ no shutdown
+ exit

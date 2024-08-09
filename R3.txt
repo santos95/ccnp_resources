@@ -1,0 +1,52 @@
+hostname R3
+no ip domain lookup
+ipv6 unicast-routing
+banner motd # THIS IS R3, ENARSI EXAM - SANTOS ORTIZ #
+enable secret santos12345
+username admin privilege 15 algorithm-type scrypt secret santos12344
+line con 0
+logging synchronous
+exec-timeout 0 0
+exit
+line vty 0 4
+login local
+transport input telnet
+exec-timeout 5 0
+exit
+clock timezone UTC -6
+interface e0/0
+ip address 209.165.201.1 255.255.255.0
+ipv6 address fe80::3:1 link-local
+ipv6 address 2001:db8:201::1/64
+no shut
+exit
+interface e0/1
+ip address 192.168.241.1 255.255.255.0
+ipv6 address fe80::3:2 link-local
+ipv6 address 2001:db8:241::1/64
+no shut
+exit
+interface s2/0
+ip address 209.165.202.2 255.255.255.0
+ipv6 address fe80::3:3 link-local
+ipv6 address 2001:db8:202::2/64
+no shut
+exit
+interface s2/1
+ip address 209.165.203.2 255.255.255.0
+ipv6 address fe80::3:4 link-local
+ipv6 address 2001:db8:203::2/64
+no shut
+exit
+interface loopback 0
+ip address 192.168.0.1 255.255.255.0
+ipv6 address fe80::3:5 link-local
+ipv6 address 2001:db8:192::1/64
+no shut
+exit
+interface loopback 1
+ip address 192.168.240.1 255.255.255.0
+ipv6 address fe80::3:6 link-local
+ipv6 address 2001:db8:240::1/64
+no shut
+exit

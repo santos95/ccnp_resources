@@ -1,0 +1,43 @@
+### CONFIGURE EIGRP ON R1 AND D1
+#### R1
+router eigrp ENARSI-SA
+address-family ipv4 unicast autonomous-system 1
+eigrp router-id 0.4.10.1
+network 10.0.0.0
+network 10.165.248.0
+network 10.165.249.0
+exit-address-family
+address-family ipv6 unicast autonomous-system 1
+eigrp router-id 0.6.10.1
+af-interface e0/0
+shutdown
+exit-af-interface
+exit-address-family
+exit
+
+#### END R1
+#### D1 
+router eigrp ENARSI-SA
+ address-family ipv4 unicast autonomous-system 1
+  eigrp router-id 0.4.10.2
+  network 10.165.249.0
+  network 10.165.250.0
+  network 10.165.251.0
+af-interface vlan 250
+   passive-interface
+   exit
+af-interface vlan 251
+   passive-interface
+   exit
+  exit-address-family
+ address-family ipv6 unicast autonomous-system 1
+  eigrp router-id 0.6.10.2
+  af-interface vlan 250
+   passive-interface
+   exit
+  af-interface vlan 251
+   passive-interface
+   exit
+  exit-address-family
+ exit
+##### END D1

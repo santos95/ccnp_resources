@@ -1,0 +1,81 @@
+hostname D2
+no ip domain lookup
+ip routing 
+ipv6 unicast-routing
+banner motd # THIS IS D2, ENARSI EXAM - SANTOS ORTIZ #
+enable secret santos12345
+username admin privilege 15 secret santos12345
+line con 0
+logging synchronous
+exec-timeout 0 0
+exit
+line vty 0 4
+login local
+transport input telnet
+exec-timeout 5 0
+exit
+
+clock timezone UTC -6
+
+vlan 242
+name Users
+exit
+
+vlan 243
+name Servers
+exit
+
+
+interface range e0/0-3,e1/0-3,e2/0-3,e3/0-3
+switchport mode access
+shut
+exit
+
+interface e1/0
+no switchport
+ip address 192.168.241.2 255.255.255.0
+ipv6 address fe80::d2:1 link-local
+ipv6 address 2001:db8:241::2/64
+no shut
+exit
+
+interface e3/1
+switchport mode access
+spanning-tree portfast
+switchport access vlan 242
+no shut
+exit
+
+interface e3/2
+switchport mode access
+spanning-tree portfast
+switchport access vlan 243
+no shut
+exit
+
+interface vlan 242
+ip address 192.168.242.1 255.255.255.0
+ipv6 address fe80::d2:2 link-local
+ipv6 address 2001:db8:242::1/64
+no shut
+exit
+
+interface vlan 243
+ip address 192.168.243.1 255.255.255.0
+ipv6 address fe80::d2:3 link-local
+ipv6 address 2001:db8:243::1/64
+no shut
+exit
+
+ip dhcp excluded-address 192.168.242.1 192.168.242.5
+ip dhcp pool VLAN242DHCP
+network 192.168.242.0 255.255.255.0
+default-router 192.168.242.1 
+exit
+
+ip dhcp excluded-address 192.168.243.1 192.168.243.5
+ip dhcp pool VLAN243DHCP
+network 192.168.243.0 255.255.255.0
+default-router 192.168.243.1 
+exit
+

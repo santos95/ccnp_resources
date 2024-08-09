@@ -1,0 +1,65 @@
+#### CONFIGURE OSPFV3 R3 AND D2
+
+##### R3
+
+router ospfv3 1
+router-id 0.0.192.3
+address-family ipv4 unicast
+passive-interface default
+no passive-interface e0/1
+redistribute bgp 192
+exit
+address-family ipv6 unicast
+  passive-interface default
+  no passive-interface e0/1
+  redistribute bgp 192
+  exit
+ exit
+interface e0/1
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ exit
+interface loopback 0
+ ip ospf network point-to-point
+ ipv6 ospf network point-to-point
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ exit
+interface loopback 1
+ ip ospf network point-to-point
+ ipv6 ospf network point-to-point
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ exit
+
+##### END R3
+
+##### D2
+router ospfv3 1
+router-id 0.0.192.2
+address-family ipv4 unicast
+    passive-interface default
+    no passive-interface e1/0
+exit
+address-family ipv6 unicast
+  passive-interface default
+  no passive-interface e1/0
+exit
+exit
+interface e1/0
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+exit
+interface vlan 242
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+exit
+interface vlan 243
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ exit
+end
+
+
+##### END D2
+##### END OSPF CONFIGURATION

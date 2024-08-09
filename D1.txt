@@ -1,0 +1,80 @@
+hostname D1
+no ip domain lookup
+ip routing 
+ipv6 unicast-routing
+banner motd # THIS IS D1, ENARSI EXAM - SANTOS ORTIZ #
+enable secret santos12345
+username admin privilege 15 secret santos12345
+line con 0
+logging synchronous
+exec-timeout 0 0
+exit
+line vty 0 4
+login local
+transport input telnet
+exec-timeout 5 0
+exit
+
+clock timezone UTC -6
+
+interface range e0/0-3,e1/0-3,e2/0-3,e3/0-3
+switchport mode access
+shut
+exit
+
+vlan 250
+name Users
+exit
+vlan 251
+name Servers
+exit
+
+interface e1/0
+no switchport
+ip address 10.165.249.2 255.255.255.0
+ipv6 address fe80::d1:1 link-local
+ipv6 address 2001:db8:249::2/64
+no shut
+exit
+
+interface e3/1
+switchport mode access
+spanning-tree portfast
+switchport access vlan 250
+no shut
+exit
+
+interface vlan 250
+ip address 10.165.250.1 255.255.255.0
+ipv6 address fe80::d1:2 link-local
+ipv6 address 2001:db8:24a::1/64
+no shut
+exit
+
+interface vlan 251
+ip address 10.165.251.1 255.255.255.0
+ipv6 address fe80::d1:3 link-local
+ipv6 address 2001:db8:24b::1/64
+no shut
+exit
+
+interface range e2/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 1 mode active 
+no shut
+exit
+
+ip dhcp excluded-address 10.165.250.1 10.165.250.5 
+ip dhcp pool VLAN250DHCP
+network 10.165.250.0 255.255.255.0
+default-router 10.165.250.1
+exit
+
+ip dhcp excluded-address 10.165.251.1 10.165.251.5
+ip dhcp pool VLAN251DHCP
+network 10.165.251.0 255.255.255.0
+default-router 10.165.251.1
+exit
+
+exit
