@@ -78,6 +78,10 @@ show ip protocols | section ospf
     show ip ospf interface | include line|authentication|key
     show ip route ospf
 
+#### the dead and hello intervals timers must match between ospf routers - enter into the interface configuration mode an set 
+    interface e0/0 - interface that participates in the process with other router
+        ip ospf hello-interval 5
+        ip ospf dead-interval 20
 
 
 #### TROUBLESHOOT OSPF
@@ -119,6 +123,13 @@ show ip protocols | section ospf
         show ip ospf interface brief
         debug ip ospf adj
         show ip ospf
+
+        show ip ospf neighbor
+        show ip route ospf | begin Gateway
+        show ip ospf | include Ref
+        show ip ospf interface brief
+        show ip ospf interface g1/0/5 | include Timer - check timers
+
 
 
 
